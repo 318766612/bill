@@ -30,21 +30,12 @@ class SQLite3_Manage
         return $this->conn->query($sql);
     }
 
-    function Execute($sql)
-    {
-        return $this->query($sql)->fetch();
-    }
-
     function RecordArray($sql)
     {
         return $this->query($sql)->fetchArray();
     }
 
     //============end
-    function changes()
-    {
-        return $this->conn->changes();
-    }
 
     function query111($sql, $param = null, $memb = null)
     {
@@ -119,43 +110,6 @@ class SQLite3_Manage
         return $res;
     }
 
-    function querySingle($sql, $param = null)
-    {
-        $res = $this->conn->querySingle($sql, $param);
-        if (!$res)
-            return false;
-        return $res;
-    }
-
-    function querySingleAll($sql, $param = null)
-    {
-        $stmt = $this->conn->prepare($sql);
-        if (!$stmt)
-            return false;
-        if ($param) {
-            if (is_array($param)) {
-                for ($i = 0; $i < count($param); $i++)
-                    $stmt->bindValue($i + 1, $param[$i]);
-            } else {
-                $stmt->bindValue(1, $param);
-            }
-        }
-        $rs = $stmt->execute();
-        if (!$rs) {
-            $stmt->close();
-            return false;
-        }
-
-        $res = array();
-        while ($arr = $rs->fetchArray(SQLITE3_NUM)) {
-            $res[] = $arr[0];
-        }
-        $rs->finalize();
-        $stmt->close();
-
-        return $res;
-    }
-
     function exec($sql, $param = null)
     {
         $stmt = $this->conn->prepare($sql);
@@ -170,6 +124,7 @@ class SQLite3_Manage
             }
         }
         $rs = $stmt->execute();
+        $res = false;
         if ($rs) {
             $res = true;
             $rs->finalize();
@@ -177,6 +132,121 @@ class SQLite3_Manage
             $res = false;
         }
         $stmt->close();
+        return $res;
+    }
+
+    //代替加密代码db_list
+    function db_list($table_name, $where_str, $order_str)
+    {
+        $sql = "SELECT * FROM " . TABLE . $table_name . " " . $where_str . " " . $order_str . ";";
+        $result = $this->query($sql);//带表头
+        $res = [];
+        while ($row_res = $result->fetchArray(SQLITE3_ASSOC)) {
+            $res[] = $row_res;
+        }
+        return $res;
+    }
+
+    //代替加密代码show_type 获取分类列表
+    function show_type($pay_type, $userid)
+    {
+        $sql = "SELECT * FROM " . TABLE . "account_class WHERE classtype=" . $pay_type . " AND ufid=" . $userid . ";";
+        $result = $this->query($sql);
+        $res = [];
+        while ($row_res = $result->fetchArray(SQLITE3_ASSOC)) {
+            $res[] = $row_res;
+        }
+        return $res;
+    }
+
+    //代替加密代码state_day 统计收支
+    function statistics($s_starttime, $s_endtime, $userid, $type)
+    {
+        $sql = "SELECT * FROM jz_account WHERE jiid=" . $userid . " AND zhifu=" . $type;
+        $result = $this->query($sql);
+        $money = 0;
+        while ($row_res = $result->fetchArray(SQLITE3_ASSOC)) {
+            $date = date('Y-m-d', $row_res["actime"]);
+            if ($date >= $s_starttime && $date <= $s_endtime) {
+                $money = $money + $row_res["acmoney"];
+            }
+        }
+        return $money;
+    }
+
+
+    //代替加密代码itlu_page_search
+    function get_page_bill($userid, $s_classid, $s_bankid, $s_starttime, $s_endtime, $s_remark, $s_page, $page_num = 50): array
+    {
+        $sql = "SELECT * FROM " . TABLE . "account WHERE jiid = " . $userid;
+        if (!empty($s_classid) && $s_classid != "all") {
+            $sql = $sql . " AND acclassid =" . $s_classid;
+        }
+        if (!empty($s_bankid) && $s_bankid != "all") {
+            $sql = $sql . " AND bankid =" . $s_bankid;
+        }
+        if (!empty($s_remark)) {
+            $sql = $sql . " AND acremark LIKE '%" . $s_remark . "%'";
+        }
+        //$sql = $sql . " LIMIT " . $page_num . " OFFSET(" . $s_page . "-1)*" . $page_num;
+        //echo $sql . "<br />";
+        $result = $this->query($sql);
+        $res = [];
+        $types = $this->get_account_type();//账单分类列表
+        $banks = $this->get_bank();//账户列表
+
+        while ($row_res = $result->fetchArray(SQLITE3_ASSOC)) {
+            $data = $row_res;
+            $date = date('Y-m-d', $data["actime"]);
+            if ($date >= $s_starttime && $date <= $s_endtime) {
+                $type_id = $data["acclassid"];
+                $bank_id = $data["bankid"];
+                foreach ($types as $value) {
+                    $types_id = $value["classid"];
+                    if ($type_id == $types_id) {
+                        $data["classname"] = $value["classname"];
+                    }
+                }
+                foreach ($banks as $value) {
+                    $banks_id = $value["bankid"];
+                    if ($bank_id == $banks_id) {
+                        $data["bankname"] = $value["bankname"];
+                    }
+                }
+                $res[] = $data;
+            }
+        }
+        $resultArray = [];
+        if (count($res) >= $s_page * $page_num) {
+            $resultArray = array_slice($res, $s_page * $page_num - 50, $page_num);
+        } else {
+            $end_length = $s_page * $page_num - count($res);
+            $resultArray = array_slice($res, $s_page * $page_num - 50, $end_length);
+        }
+        return $resultArray;
+    }
+
+    //获取账单分类列表
+    function get_account_type(): array
+    {
+        $sql = "SELECT * FROM jz_account_class";
+        $result = $this->query($sql);
+        $res = [];
+        while ($row_res = $result->fetchArray(SQLITE3_ASSOC)) {
+            $res[] = $row_res;
+        }
+        return $res;
+    }
+
+    //获取账户列表
+    function get_bank(): array
+    {
+        $sql = "SELECT * FROM jz_bank";
+        $result = $this->query($sql);
+        $res = [];
+        while ($row_res = $result->fetchArray(SQLITE3_ASSOC)) {
+            $res[] = $row_res;
+        }
         return $res;
     }
 

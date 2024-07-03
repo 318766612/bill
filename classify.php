@@ -14,7 +14,7 @@ for ($i = 2; $i >= 1; $i--) {
         $fontcolor = "green";
         $word = "收入";
     }
-    $pay_type_list = show_type($i, $userid);
+    $pay_type_list = $conn->show_type($i, $userid);
     foreach ($pay_type_list as $row) {
         echo "<ul class=\"table-row\">";
         echo "<li class='" . $fontcolor . "'>" . $row["classname"] . "</li>";

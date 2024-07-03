@@ -43,7 +43,7 @@ loginchk($userid);
                         <li><a href="annual_stat.php" <?php show_menu_cur("annual_stat.php"); ?>>全年统计</a></li>
                         <li><a href="classify.php" <?php show_menu_cur("classify.php"); ?>>分类管理</a></li>
                         <li><a href="bank.php" <?php show_menu_cur("bank.php"); ?>>账户管理</a></li>
-                        <li><a href="int_out.php" <?php show_menu_cur("int_out.php"); ?>>导入导出</a></li>
+                        <!--<li><a href="int_out.php" <?php show_menu_cur("int_out.php"); ?>导入导出</a></li>-->
                         <li>
                             <a href="users.php" <?php show_menu_cur("users.php"); ?>><?php echo "帐号：" . $userinfo['username']; ?></a>
                         </li>

@@ -31,7 +31,7 @@ if ($s_remark != "") {
 if ($s_bankid != "") {
     $pageurl = $pageurl . "&bankid=" . $s_bankid;
 }
-$banklist = db_list("bank", "where userid='$userid'", "order by bankid asc");
+$banklist = $conn->db_list("bank", "where userid='$userid'", "order by bankid asc");
 ?>
 
 <table align="left" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
@@ -43,17 +43,24 @@ $banklist = db_list("bank", "where userid='$userid'", "order by bankid asc");
         <td bgcolor="#FFFFFF">
             <div class="search_box">
                 <form id="s_form" name="s_form" method="get">
-                    <p><label for="money">金额：<input class="w100" value="<?php echo $s_startmoney; ?>" type="number"
-                                                    step="0.01" name="startmoney" id="startmoney" size="10" maxlength="8"
+                <!--    <p><label for="money">金额：<input class="w100" value="<?php /*echo $s_startmoney; */?>" type="number"
+                                                    step="0.01" name="startmoney" id="startmoney" size="10"
+                                                    maxlength="8"
                                                     onkeyup="value=value.replace(/[^\d{1,}\.\d{1,}|\d{1,}]/g,'')"/>-<input
-                                    class="w100" value="<?php echo $s_endmoney; ?>" type="number" step="0.01"
+                                    class="w100" value="<?php /*echo $s_endmoney; */?>" type="number" step="0.01"
                                     name="endmoney" id="endmoney" size="10" maxlength="8"
-                                    onkeyup="value=value.replace(/[^\d{1,}\.\d{1,}|\d{1,}]/g,'')"/></label></p>
+                                    onkeyup="value=value.replace(/[^\d{1,}\.\d{1,}|\d{1,}]/g,'')"/></label></p>-->
                     <p><label for="classid">分类：<select class="w180" name="classid" id="classid">
-                                <option value="all" <?php if ($s_classid == "all") {echo "selected";} ?>>全部分类</option>
-                                <option value="pay" <?php if ($s_classid == "pay") {echo "selected";} ?>>====支出====</option>
+                                <option value="all" <?php if ($s_classid == "all") {
+                                    echo "selected";
+                                } ?>>全部分类
+                                </option>
+                                <option value="pay" <?php if ($s_classid == "pay") {
+                                    echo "selected";
+                                } ?>>====支出====
+                                </option>
                                 <?php
-                                $pay_type_list = show_type(2, $userid);
+                                $pay_type_list = $conn->show_type(2, $userid);
                                 foreach ($pay_type_list as $myrow) {
                                     if ($myrow['classid'] == $s_classid) {
                                         echo "<option value='$myrow[classid]' selected>支出>>" . $myrow['classname'] . "</option>";
@@ -62,9 +69,12 @@ $banklist = db_list("bank", "where userid='$userid'", "order by bankid asc");
                                     }
                                 }
                                 ?>
-                                <option value="income" <?php if ($s_classid == "income") {echo "selected";} ?>>====收入====</option>
+                                <option value="income" <?php if ($s_classid == "income") {
+                                    echo "selected";
+                                } ?>>====收入====
+                                </option>
                                 <?php
-                                $pay_type_list = show_type(1, $userid);
+                                $pay_type_list = $conn->show_type(1, $userid);
                                 foreach ($pay_type_list as $myrow) {
                                     if ($myrow['classid'] == $s_classid) {
                                         echo "<option value='$myrow[classid]' selected>收入 -- " . $myrow['classname'] . "</option>";
@@ -74,15 +84,19 @@ $banklist = db_list("bank", "where userid='$userid'", "order by bankid asc");
                                 }
                                 ?>
                             </select></label></p>
-                    <p><label for="time">时间：<input class="w100" value="<?php echo $s_starttime; ?>" type="text" name="starttime" id="starttime" onClick="WdatePicker({maxDate:'#F{$dp.$D(\'endtime\')||\'<?php echo $today; ?>\'}'})"/>-<input
+                    <p><label for="time">时间：<input class="w100" value="<?php echo $s_starttime; ?>" type="text"
+                                                   name="starttime" id="starttime"
+                                                   onClick="WdatePicker({maxDate:'#F{$dp.$D(\'endtime\')||\'<?php echo $today; ?>\'}'})"/>-<input
                                     class="w100" type="text" name="endtime" value="<?php if ($s_endtime == "") {
                                 echo $today;
                             } else {
                                 echo $s_endtime;
-                            } ?>" id="endtime" onClick="WdatePicker({minDate:'#F{$dp.$D(\'starttime\')}',maxDate:'%y-%M-%d'})"/></label>
+                            } ?>" id="endtime"
+                                    onClick="WdatePicker({minDate:'#F{$dp.$D(\'starttime\')}',maxDate:'%y-%M-%d'})"/></label>
                     </p>
 
-                    <p><label for="remark">备注：<input class="w180" type="text" name="remark" id="remark" size="30" value="<?php echo $s_remark; ?>"></label></p>
+                    <p><label for="remark">备注：<input class="w180" type="text" name="remark" id="remark" size="30"
+                                                     value="<?php echo $s_remark; ?>"></label></p>
                     <p><label for="bankid">账户：<select class="w180" name="bankid" id="bankid">
                                 <option value="" <?php if ($s_bankid == "") {
                                     echo "selected";
@@ -112,8 +126,9 @@ $banklist = db_list("bank", "where userid='$userid'", "order by bankid asc");
 <?php
 //show_tab(1);
 echo "<form name='del_all' id='del_all' method='post' onsubmit='return deleterecordAll(this);'>";
-show_tab(2);
-$Prolist = itlu_page_search($userid, 20, $s_page, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
+show_tab(1);
+//$Prolist = itlu_page_search($userid, 20, $s_page, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
+$Prolist = $conn->get_page_bill($userid, $s_classid, $s_bankid, $s_starttime, $s_endtime, $s_remark, $s_page, 50);
 $thiscount = 0;
 foreach ($Prolist as $row) {
     if ($row['zhifu'] == 1) {
@@ -125,7 +140,7 @@ foreach ($Prolist as $row) {
     }
     echo "<ul class=\"table-row " . $fontcolor . "\">";
     echo "<li><i class='noshow'>" . $word . ">></i>" . $row['classname'] . "</li>";
-    echo "<li>" . bankname($row['bankid'], $userid, "默认账户") . "</li>";
+    echo "<li>" . $row['bankname'] . "</li>";
     echo "<li class='t_a_r'>" . price_format($row['acmoney']) . "</li>";
     if (isMobile()) {
         echo "<li>" . date("m-d", $row['actime']) . "</li>";
@@ -134,7 +149,7 @@ foreach ($Prolist as $row) {
     }
     echo "<li>" . $row['acremark'] . "</li>";
     echo "<li><a href='javascript:' onclick='editRecord(this,\"myModal\")' data-info='{\"id\":\"" . $row["acid"] . "\",\"money\":\"" . $row["acmoney"] . "\",\"zhifu\":\"" . $row["zhifu"] . "\",\"bankid\":\"" . $row["bankid"] . "\",\"addtime\":\"" . date("Y-m-d H:i", $row['actime']) . "\",\"remark\":" . json_encode($row["acremark"]) . ",\"classname\":" . json_encode($word . " -- " . $row["classname"]) . "}'><img src='img/edit.png' /></a><a class='ml8' href='javascript:' onclick='delRecord(\"record\"," . $row['acid'] . ");'><img src='img/del.png' /></a></li>";
-    echo "<li class='noshow'><input name='del_id[]' type='checkbox' id='del_id[]' value=" . $row['acid'] . " /></li>";
+    //echo "<li class='noshow'><input name='del_id[]' type='checkbox' id='del_id[]' value=" . $row['acid'] . " /></li>";
     echo "</ul>";
     $thiscount++;
 }
@@ -143,11 +158,12 @@ show_tab(3);
 ?>
 <?php
 //显示页码
-$allcount = record_num_query($userid, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
+//$allcount = record_num_query($userid, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
+$allcount = count($Prolist);
 $pages = ceil($allcount / 20);
 if ($pages > 1) {
     ?>
-    <div class="page"><?php getPageHtml($s_page, $pages, $pageurl . "&", $thiscount, $allcount); ?></div>
+    <div class="page"><?php getPageHtml($s_page, $pages, $pageurl . "&", $allcount, $thiscount); ?></div>
 <?php } ?>
 <?php
 $banklist_show = '';
@@ -208,7 +224,7 @@ foreach ($banklist as $myrow) {
 </div>
 <script language="javascript">
     //统计
-    $("#stat").html("<?php echo $s_starttime;?> 至 <?php echo $s_endtime;?>共收入<strong class='green'><?php echo state_day($s_starttime, $s_endtime, $userid, 1);?></strong>，共支出<strong class='red'><?php echo state_day($s_starttime, $s_endtime, $userid, 2);?></strong>");
+    $("#stat").html("<?php echo $s_starttime;?> 至 <?php echo $s_endtime;?>共收入<strong class='green'><?php echo $conn->statistics($s_starttime, $s_endtime, $userid, 1);?></strong>，共支出<strong class='red'><?php echo $conn->statistics($s_starttime, $s_endtime, $userid, 2);?></strong>");
 
     $('input[name="check_all"]').on("click", function () {
         if ($(this).is(':checked')) {

@@ -1,7 +1,9 @@
 <?php include_once("header.php");
-$banklist = db_list("bank", "where userid='$userid'", "order by bankid asc");//账户列表
-$pay_type_list = show_type(2, $userid);//支出列表
-$income_type_list = show_type(1, $userid);//收入列表
+$banklist = $conn->db_list("bank", "where userid='$userid'", "order by bankid asc");//账户列表
+
+$pay_type_list = $conn->show_type(2, $userid);//支出列表
+
+$income_type_list = $conn->show_type(1, $userid);//收入列表
 ?>
 <table align="left" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
        class='table table-striped table-bordered'>
@@ -10,7 +12,8 @@ $income_type_list = show_type(1, $userid);//收入列表
             <i class="pull-right">
                 <button type="button" class="btn btn-primary btn-xs" onclick="location='batch_add.php'">批量记</button>
             </i>
-            <div class="tab-title"><span class="red on" data-id="pay">支出</span><span class="green" data-id="income">收入</span></div>
+            <div class="tab-title"><span class="red on" data-id="pay">支出</span><span class="green"
+                                                                                     data-id="income">收入</span></div>
         </td>
     </tr>
     <tr>
@@ -121,7 +124,10 @@ $s_bankid = '';
 $s_page = '1';
 
 show_tab(1);
-$Prolist = itlu_page_search($userid, 50, $s_page, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
+//get_page_bill   itlu_page_search
+//$Prolist =itlu_page_search($userid, 50, $s_page, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
+$Prolist = $conn->get_page_bill($userid, $s_classid, $s_bankid, $s_starttime, $s_endtime, $s_remark, $s_page, 50);
+//var_dump($Prolist);
 $thiscount = 0;
 foreach ($Prolist as $row) {
     if ($row['zhifu'] == 1) {
@@ -133,7 +139,7 @@ foreach ($Prolist as $row) {
     }
     echo "<ul class=\"table-row " . $fontcolor . "\">";
     echo "<li><i class='noshow'>" . $word . ">></i>" . $row['classname'] . "</li>";
-    echo "<li>" . bankname($row['bankid'], $userid, "默认账户") . "</li>";
+    echo "<li>" . $row['bankname'] . "</li>";
     echo "<li class='t_a_r'>" . price_format($row['acmoney']) . "</li>";
     if (isMobile()) {
         echo "<li>" . date("m-d", $row['actime']) . "</li>";
@@ -180,7 +186,10 @@ show_tab(3);
                     <div class="form-group">
                         <label for="edit-bankid">账户</label>
                         <select name="edit-bankid" id="edit-bankid" class="form-control">
-                            <?php echo $banklist_show; ?>
+                            <?php
+                            foreach ($banklist as $myrow) {
+                                echo "<option value='$myrow[bankid]'>" . $myrow['bankname'] . "</option>";
+                            } ?>
                         </select>
                     </div>
                     <div class="form-group">
@@ -200,7 +209,7 @@ show_tab(3);
 </div>
 <script type="text/javascript">
     //统计今天的收支总数
-    $("#stat").html("今天支出<strong class='red'><?php echo state_day($today, $today, $userid, 2);?></strong>，收入<strong class='green'><?php echo state_day($today, $today, $userid, 1);?></strong>");
+    $("#stat").html("今天支出<strong class='red'><?php echo $conn->statistics($today, $today, $userid, 2);?></strong>，收入<strong class='green'><?php echo $conn->statistics($today, $today, $userid, 1);?></strong>");
 
     function checkpost(form, type) {
         if ((form.money.value == "") || (form.money.value <= 0)) {
@@ -210,6 +219,6 @@ show_tab(3);
         }
         $("#submit_" + type).addClass("disabled");
         saverecord(type);
-        return false;
+       // return true;
     }
 </script>

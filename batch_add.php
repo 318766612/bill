@@ -1,18 +1,18 @@
 <?php include_once("header.php");
 // 支付分类列表
-$pay_type_list = show_type(2, $userid);
+$pay_type_list = $conn->show_type(2, $userid);
 $pay_type_option = "";
 foreach ($pay_type_list as $myrow) {
     $pay_type_option = $pay_type_option . "<option value='$myrow[classid]'>" . $myrow['classname'] . "</option>";
 }
 // 收入分类列表
-$pay_type_list = show_type(1, $userid);
+$pay_type_list = $conn->show_type(1, $userid);
 $income_type_option = "";
 foreach ($pay_type_list as $myrow2) {
     $income_type_option = $income_type_option . "<option value='$myrow2[classid]'>" . $myrow2['classname'] . "</option>";
 }
 // 账户列表
-$bank_list = db_list("bank", "where userid='$userid'", "order by bankid asc");
+$bank_list = $conn->db_list("bank", "where userid='$userid'", "order by bankid asc");
 $bank_option = "";
 foreach ($bank_list as $myrow) {
     $bank_option = $bank_option . "<option value='$myrow[bankid]'>" . $myrow['bankname'] . "</option>";

@@ -85,7 +85,6 @@ function saverecord(type){
 		url: "date.php?action=addrecord",
 		data: $(form_name).serialize(),
 		success: function (result) {
-			//console.log("结果："+result);
 			$(error_name).show();
 			var data = '';
 			if(result != ''){
@@ -122,7 +121,7 @@ function deleterecordAll(form){
 				if(result != ''){
 					data = eval("("+result+")");
 				}
-				alert(data.error_msg);
+				// alert(data.error_msg);
 			},
 			error:function(){
 				console.log(result);
@@ -195,7 +194,7 @@ function delRecord(type,t){
 			url:geturl,
 			async:true,
 			success:function(data){
-				alert(data);
+				//alert(data);
 				window.location.reload();
 			}
 		});

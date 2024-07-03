@@ -12,12 +12,6 @@ if (!$conn) {
     die('数据库打开失败！');
 }
 
-if (substr(PHP_VERSION, 0, 1) >= '7') {
-    define('PHP7', true);
-} else {
-    define('PHP7', false);
-}
-
 $today = date("Y-m-d");
 $yesterday = date("Y-m-d", strtotime("-1 day"));
 $this_year = date("Y");
@@ -100,7 +94,7 @@ if (isset($_SESSION['uid'])) {
 function loginchk($uid)
 {
     if ($uid == "" || empty($uid) || $uid == null) {
-        msgbox("您无权限访问该页,正在跳转登入页面...", "", "login.php");
+        msgbox("", "您无权限访问该页,正在跳转登入页面...", "login.php");
     }
 }
 
@@ -159,7 +153,7 @@ function showlogin($tid)
 
 }
 
-function msgbox($content, $title = "", $url)
+function msgbox($title, $content, $url)
 {
     echo "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />";
     echo "<div style=\"width:350px;margin:50px auto;border:1px solid #ddd;font-size:14px;\"><div style=\"width:100%;border-bottom:1px solid #ddd;height:32px;line-height:32px;text-align:center;background:#efefef;font-weight:bold;\">";
@@ -307,7 +301,7 @@ function vita_get_url_content($url)
     return $file_contents;
 }
 
-function getPageHtml($page, $pages, $url, $thiscount = 20, $allcount)
+function getPageHtml($page, $pages, $url, $allcount, $thiscount = 20)
 {
     $_pageNum = 4;
     $page = $page < 1 ? 1 : $page;
@@ -376,15 +370,8 @@ function yearIncome($year)
 
 }
 
-include_once("content.php");
 include_once("safe.php");
-if (PHP7) {
-    include_once("aes7.php");
-} else {
-    include_once("aes5.php");
-}
-require_once("Smtp.class.php");
-require_once("smtp_config.php");
+include_once("aes7.php");
 //setcookie("userinfo", "", time()-86400*3);
 if (!empty($_COOKIE["userinfo"])) {
     $userinfo = AES::decrypt($_COOKIE["userinfo"], $sys_key);

@@ -81,7 +81,7 @@ include_once("header.php");
         </tr>
     </table>
 
-    <table align="center" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
+<!--    <table align="center" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
            class='table table-striped table-bordered'>
         <tr>
             <td bgcolor="#EBEBEB">SMTP设置</td>
@@ -91,7 +91,7 @@ include_once("header.php");
                 <div class="record_form" id="smtp">
                     <form id="smtp_form" name="smtp_form" method="post" onsubmit="return checkpost('smtp',this);">
                         <?php
-                        $keyinfo_smtp = [
+/*                        $keyinfo_smtp = [
                             "c_protocol" => "是否SSL",
                             "c_serverport" => "端口",
                             "c_smtp" => "SMTP",
@@ -102,25 +102,25 @@ include_once("header.php");
                         preg_match_all("/define\(\"(.*?)\",\"(.*?)\"\)/", $info, $arr);
                         foreach ($arr[1] as $k => $v) {
                             if ($v == 'c_protocol') {
-                                ?>
-                                <p><i><?php echo $keyinfo_smtp[$v]; ?>：</i><label class="red"><input name="c_protocol"
+                                */?>
+                                <p><i><?php /*echo $keyinfo_smtp[$v]; */?>：</i><label class="red"><input name="c_protocol"
                                                                                                      type="radio"
-                                                                                                     value="1" <?php if ($arr[2][$k] == '1') {
+                                                                                                     value="1" <?php /*if ($arr[2][$k] == '1') {
                                             echo "checked";
-                                        } ?> />使用SSL</label><label class="ml10"><input name="c_protocol" type="radio"
-                                                                                       value="0" <?php if ($arr[2][$k] == '0') {
+                                        } */?> />使用SSL</label><label class="ml10"><input name="c_protocol" type="radio"
+                                                                                       value="0" <?php /*if ($arr[2][$k] == '0') {
                                             echo "checked";
-                                        } ?> />默认</label></p>
+                                        } */?> />默认</label></p>
                                 <?php
-                            } else {
-                                ?>
-                                <p><i><?php echo $keyinfo_smtp[$v]; ?>：</i><input type="text" class="w180"
-                                                                                  name="<?php echo $v; ?>"
-                                                                                  id="<?php echo $v; ?>"
-                                                                                  value="<?php echo $arr[2][$k]; ?>">
+/*                            } else {
+                                */?>
+                                <p><i><?php /*echo $keyinfo_smtp[$v]; */?>：</i><input type="text" class="w180"
+                                                                                  name="<?php /*echo $v; */?>"
+                                                                                  id="<?php /*echo $v; */?>"
+                                                                                  value="<?php /*echo $arr[2][$k]; */?>">
                                 </p>
-                            <?php }
-                        } ?>
+                            <?php /*}
+                        } */?>
                         <p class="btn_div">
                             <button name="submit" type="submit" id="submit_smtp" class="btn btn-primary">更新信息</button>
                             <span id="smtp_error_show" class="red"></span>
@@ -129,7 +129,7 @@ include_once("header.php");
                 </div>
             </td>
         </tr>
-    </table>
+    </table>-->
 
     <table align="left" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
            class='table table-striped table-bordered'>
@@ -147,7 +147,7 @@ include_once("header.php");
             <th align="left" bgcolor="#EBEBEB">操作</th>
         </tr>
         <?php
-        $userlist = db_list("user", "where uid>0", "order by uid asc");
+        $userlist = $conn->db_list("user", "where uid>0", "order by uid asc");
         foreach ($userlist as $myrow) {
             if ($myrow['Isallow'] == "0") {
                 $res = "<span class='green'>正常</span>";

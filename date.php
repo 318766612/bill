@@ -79,9 +79,9 @@ if ($getaction == "deletebank") {
             $del_sql = "delete from " . TABLE . "bank where bankid=" . $bankid;
             $del_result = $conn->exec($del_sql);
             if ($del_result) {
-                $error_code = "删除成功！";
+                $error_code = "删除账户成功！";
             } else {
-                $error_code = "删除失败！";
+                $error_code = "删除账户失败！";
             }
         }
     }
@@ -101,6 +101,7 @@ if ($getaction == "addrecord") {
     } else {
         $sql = "insert into " . TABLE . "account (acmoney, acclassid, actime, acremark, jiid, zhifu, bankid) values ('$money', '$classid', '$addtime', '$remark', '$userid', '$zhifu', '$bankid')";
         $query = $conn->exec($sql);
+        echo $query;
         if ($query) {
             if ($bankid > 0) {
                 money_int_out($bankid, $money, $zhifu);
@@ -165,9 +166,9 @@ if ($getaction == "deleterecord") {
     if (empty($get_id) || !is_numeric($get_id)) {
         $error_code = "缺少参数或参数非法！";
     } else {
-        $sql = "select bankid,zhifu,acmoney from " . TABLE . "account where acid='$get_id' and jiid='$userid'";
+/*        $sql = "select bankid,zhifu,acmoney from " . TABLE . "account where acid='$get_id' and jiid='$userid'";
         $results = $conn->query($sql);
-        if ($row = $results->fetchArray()) {
+        if ($row = $results->fetchArray(SQLITE3_ASSOC)) {
             if ($row["bankid"] > 0) {
                 $zhifu = "2";
                 if ($row["zhifu"] == "2") {
@@ -175,7 +176,7 @@ if ($getaction == "deleterecord") {
                 }
                 money_int_out($row["bankid"], $row["acmoney"], $zhifu);
             }
-        }
+        }*/
         $del_sql = "delete from " . TABLE . "account where acid='$get_id' and jiid='$userid'";
         $del_result = $conn->exec($del_sql);
         if ($del_result) {
