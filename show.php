@@ -8,29 +8,29 @@ $s_endmoney = get('endmoney');
 $s_remark = get('remark');
 $s_bankid = get('bankid');
 $s_page = get('page', '1');
-
+$page_num = 20;
 $pageurl = "show.php?1=1";
-if ($s_classid != "") {
+if ($s_classid != "")
     $pageurl = $pageurl . "&classid=" . $s_classid;
-}
-if ($s_starttime != "") {
+
+if ($s_starttime != "")
     $pageurl = $pageurl . "&starttime=" . $s_starttime;
-}
-if ($s_endtime != "") {
+
+if ($s_endtime != "")
     $pageurl = $pageurl . "&endtime=" . $s_endtime;
-}
-if ($s_startmoney != "") {
+
+if ($s_startmoney != "")
     $pageurl = $pageurl . "&startmoney=" . $s_startmoney;
-}
-if ($s_endmoney != "") {
+
+if ($s_endmoney != "")
     $pageurl = $pageurl . "&endmoney=" . $s_endmoney;
-}
-if ($s_remark != "") {
+
+if ($s_remark != "")
     $pageurl = $pageurl . "&remark=" . $s_remark;
-}
-if ($s_bankid != "") {
+
+if ($s_bankid != "")
     $pageurl = $pageurl . "&bankid=" . $s_bankid;
-}
+
 $banklist = $conn->db_list("bank", "where userid='$userid'", "order by bankid asc");
 ?>
 
@@ -43,11 +43,11 @@ $banklist = $conn->db_list("bank", "where userid='$userid'", "order by bankid as
         <td bgcolor="#FFFFFF">
             <div class="search_box">
                 <form id="s_form" name="s_form" method="get">
-                <!--    <p><label for="money">金额：<input class="w100" value="<?php /*echo $s_startmoney; */?>" type="number"
+                    <!--    <p><label for="money">金额：<input class="w100" value="<?php /*echo $s_startmoney; */ ?>" type="number"
                                                     step="0.01" name="startmoney" id="startmoney" size="10"
                                                     maxlength="8"
                                                     onkeyup="value=value.replace(/[^\d{1,}\.\d{1,}|\d{1,}]/g,'')"/>-<input
-                                    class="w100" value="<?php /*echo $s_endmoney; */?>" type="number" step="0.01"
+                                    class="w100" value="<?php /*echo $s_endmoney; */ ?>" type="number" step="0.01"
                                     name="endmoney" id="endmoney" size="10" maxlength="8"
                                     onkeyup="value=value.replace(/[^\d{1,}\.\d{1,}|\d{1,}]/g,'')"/></label></p>-->
                     <p><label for="classid">分类：<select class="w180" name="classid" id="classid">
@@ -128,9 +128,10 @@ $banklist = $conn->db_list("bank", "where userid='$userid'", "order by bankid as
 echo "<form name='del_all' id='del_all' method='post' onsubmit='return deleterecordAll(this);'>";
 show_tab(1);
 //$Prolist = itlu_page_search($userid, 20, $s_page, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
-$Prolist = $conn->get_page_bill($userid, $s_classid, $s_bankid, $s_starttime, $s_endtime, $s_remark, $s_page, 50);
-$thiscount = 0;
-foreach ($Prolist as $row) {
+$Prolist = $conn->get_page_bill($userid, $s_classid, $s_bankid, $s_starttime, $s_endtime, $s_remark, $s_page, $page_num);
+$data = $Prolist["data"];
+//$thiscount = 0;
+foreach ($data as $row) {
     if ($row['zhifu'] == 1) {
         $fontcolor = "green";
         $word = "收入";
@@ -151,7 +152,7 @@ foreach ($Prolist as $row) {
     echo "<li><a href='javascript:' onclick='editRecord(this,\"myModal\")' data-info='{\"id\":\"" . $row["acid"] . "\",\"money\":\"" . $row["acmoney"] . "\",\"zhifu\":\"" . $row["zhifu"] . "\",\"bankid\":\"" . $row["bankid"] . "\",\"addtime\":\"" . date("Y-m-d H:i", $row['actime']) . "\",\"remark\":" . json_encode($row["acremark"]) . ",\"classname\":" . json_encode($word . " -- " . $row["classname"]) . "}'><img src='img/edit.png' /></a><a class='ml8' href='javascript:' onclick='delRecord(\"record\"," . $row['acid'] . ");'><img src='img/del.png' /></a></li>";
     //echo "<li class='noshow'><input name='del_id[]' type='checkbox' id='del_id[]' value=" . $row['acid'] . " /></li>";
     echo "</ul>";
-    $thiscount++;
+    //$thiscount++;
 }
 echo "</form>";
 show_tab(3);
@@ -159,11 +160,15 @@ show_tab(3);
 <?php
 //显示页码
 //$allcount = record_num_query($userid, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
-$allcount = count($Prolist);
-$pages = ceil($allcount / 20);
+//$allcount = count($Prolist);
+//$pages = ceil($allcount / 20);
+$allcount = $Prolist["page"]["all"];
+$page_len = $Prolist["page"]["page_len"];
+$pages = $Prolist["page"]["pages"];
+
 if ($pages > 1) {
     ?>
-    <div class="page"><?php getPageHtml($s_page, $pages, $pageurl . "&", $allcount, $thiscount); ?></div>
+    <div class="page"><?php getPageHtml($s_page, $pages, $pageurl . "&", $allcount, $page_len); ?></div>
 <?php } ?>
 <?php
 $banklist_show = '';

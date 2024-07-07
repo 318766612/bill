@@ -190,6 +190,7 @@ class SQLite3_Manage
         }
         //$sql = $sql . " LIMIT " . $page_num . " OFFSET(" . $s_page . "-1)*" . $page_num;
         //echo $sql . "<br />";
+        //echo $s_page . "  " . $s_starttime . "  " . $s_endtime . "<br />";
         $result = $this->query($sql);
         $res = [];
         $types = $this->get_account_type();//账单分类列表
@@ -199,6 +200,7 @@ class SQLite3_Manage
             $data = $row_res;
             $date = date('Y-m-d', $data["actime"]);
             if ($date >= $s_starttime && $date <= $s_endtime) {
+                //echo $date. "<br />";
                 $type_id = $data["acclassid"];
                 $bank_id = $data["bankid"];
                 foreach ($types as $value) {
@@ -217,12 +219,28 @@ class SQLite3_Manage
             }
         }
         $resultArray = [];
-        if (count($res) >= $s_page * $page_num) {
-            $resultArray = array_slice($res, $s_page * $page_num - 50, $page_num);
+        $res_len = count($res);
+        $page_len = $s_page * $page_num;//页数需要的数量
+        //
+        $res_page = [];
+        $res_page["all"] = $res_len;//所有数据长度
+        $page_nums = intval($res_len / $page_num);
+        $remainder = $res_len % $page_num;
+        if ($remainder > 0)
+            $page_nums = $page_nums + 1;
+        $res_page["pages"] = $page_nums;//所有页数
+        $res_page["page"] = $s_page;//当前页
+
+        if ($res_len > $page_len) {
+            $res_page["page_len"] = $page_len;//当前页共有多少数量
+            $resultArray["data"] = array_slice($res, $s_page * $page_num - $page_num, $page_num);
         } else {
-            $end_length = $s_page * $page_num - count($res);
-            $resultArray = array_slice($res, $s_page * $page_num - 50, $end_length);
+            $res_page["page_len"] = $res_len;//当前页共有多少数量
+            $end_length = $res_len - (($s_page - 1) * $page_num);//不够一页时，当前页的数量
+            $resultArray["data"] = array_slice($res, $s_page * $page_num - $page_num, $end_length);
         }
+        $resultArray["page"] = $res_page;
+        //var_dump($resultArray);
         return $resultArray;
     }
 

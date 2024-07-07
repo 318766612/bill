@@ -1,9 +1,8 @@
 <?php include_once("header.php");
 $banklist = $conn->db_list("bank", "where userid='$userid'", "order by bankid asc");//账户列表
-
 $pay_type_list = $conn->show_type(2, $userid);//支出列表
-
 $income_type_list = $conn->show_type(1, $userid);//收入列表
+
 ?>
 <table align="left" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
        class='table table-striped table-bordered'>
@@ -121,15 +120,40 @@ $s_startmoney = '';
 $s_endmoney = '';
 $s_remark = '';
 $s_bankid = '';
-$s_page = '1';
+//$s_page = '1';
+$page_num = 20;
+$s_page = get('page', '1');
+$pageurl = "show.php?1=1";
+if ($s_classid != "")
+    $pageurl = $pageurl . "&classid=" . $s_classid;
+
+if ($s_starttime != "")
+    $pageurl = $pageurl . "&starttime=" . $s_starttime;
+
+if ($s_endtime != "")
+    $pageurl = $pageurl . "&endtime=" . $s_endtime;
+
+if ($s_startmoney != "")
+    $pageurl = $pageurl . "&startmoney=" . $s_startmoney;
+
+if ($s_endmoney != "")
+    $pageurl = $pageurl . "&endmoney=" . $s_endmoney;
+
+if ($s_remark != "")
+    $pageurl = $pageurl . "&remark=" . $s_remark;
+
+if ($s_bankid != "")
+    $pageurl = $pageurl . "&bankid=" . $s_bankid;
+
 
 show_tab(1);
 //get_page_bill   itlu_page_search
 //$Prolist =itlu_page_search($userid, 50, $s_page, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
-$Prolist = $conn->get_page_bill($userid, $s_classid, $s_bankid, $s_starttime, $s_endtime, $s_remark, $s_page, 50);
+$Prolist = $conn->get_page_bill($userid, $s_classid, $s_bankid, $s_starttime, $s_endtime, $s_remark, $s_page, $page_num);
 //var_dump($Prolist);
 $thiscount = 0;
-foreach ($Prolist as $row) {
+$data = $Prolist["data"];
+foreach ($data as $row) {
     if ($row['zhifu'] == 1) {
         $fontcolor = "green";
         $word = "收入";
@@ -153,6 +177,20 @@ foreach ($Prolist as $row) {
 }
 show_tab(3);
 ?>
+
+<?php
+//显示页码
+//$allcount = record_num_query($userid, $s_classid, $s_starttime, $s_endtime, $s_startmoney, $s_endmoney, $s_remark, $s_bankid);
+//$allcount = count($Prolist);
+//$pages = ceil($allcount / 20);
+$allcount = $Prolist["page"]["all"];
+$page_len = $Prolist["page"]["page_len"];
+$pages = $Prolist["page"]["pages"];
+
+if ($pages > 1) {
+    ?>
+    <div class="page"><?php getPageHtml($s_page, $pages, $pageurl . "&", $allcount, $page_len); ?></div>
+<?php } ?>
 
 <?php include_once("footer.php"); ?>
 <!--// 编辑-->
@@ -219,6 +257,6 @@ show_tab(3);
         }
         $("#submit_" + type).addClass("disabled");
         saverecord(type);
-       // return true;
+        // return true;
     }
 </script>
