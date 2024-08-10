@@ -1,11 +1,13 @@
 <?php
-include_once("header.php");
+include_once __DIR__ . '/header.php';
 ?>
 <div class="table stat">
-    <div class="itlu-title"><span class="pull-right"><button type="button" class="btn btn-primary btn-xs" id="btn_add">添加分类</button></span></div>
+    <div class="itlu-title"><span class="pull-right"><button type="button" class="btn btn-primary btn-xs" id="btn_add">添加分类</button></span>
+    </div>
 </div>
 <?php
 show_tab(5);
+$category = new Category();
 for ($i = 2; $i >= 1; $i--) {
     if ($i == 2) {
         $fontcolor = "red";
@@ -14,18 +16,20 @@ for ($i = 2; $i >= 1; $i--) {
         $fontcolor = "green";
         $word = "收入";
     }
-    $pay_type_list = $conn->show_type($i, $userid);
+    $pay_type_list = $category->type_category($userid, $i);//支出列表
+    //$pay_type_list = $conn->show_type($i, $userid);
     foreach ($pay_type_list as $row) {
         echo "<ul class=\"table-row\">";
-        echo "<li class='" . $fontcolor . "'>" . $row["classname"] . "</li>";
+        echo "<li class='" . $fontcolor . "'>" . $row["category_name"] . "</li>";
         echo "<li class='" . $fontcolor . "'>" . $word . "</li>";
-        echo "<li><a class='btn btn-primary btn-xs' href='javascript:' onclick='edit(this)' data-info='{\"classid\":\"" . $row["classid"] . "\",\"classtype\":\"" . $i . "\",\"classname\":" . json_encode($row["classname"]) . "}'>修改</a> <a class='btn btn-success btn-xs' href='javascript:' onclick='change(this)' data-info='{\"classid\":\"" . $row["classid"] . "\",\"classtype\":\"" . $i . "\",\"classname\":" . json_encode($row["classname"]) . "}'>转移</a> <a class='btn btn-danger btn-xs' href='javascript:' onclick='delRecord(\"classify\"," . $row["classid"] . ")'>删除</a></li>";
+        $data = json_encode($row);
+        echo "<li><a class='btn btn-primary btn-xs' href='javascript:' onclick='edit(this)' data-info='$data'>修改</a> <a class='btn btn-success btn-xs' href='javascript:' onclick='change(this)' data-info='$data'>转移</a> <a class='btn btn-danger btn-xs' href='javascript:' onclick='deleteRecord(" . $row["category_id"] . ")'>删除</a></li>";
         echo "</ul>";
     }
 }
 show_tab(3);
 ?>
-<?php include_once("footer.php"); ?>
+<?php include_once __DIR__ . '/footer.php'; ?>
 <!--// 添加编辑分类-->
 <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
     <div class="modal-dialog" role="document">
@@ -38,22 +42,23 @@ show_tab(3);
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="classname">分类名称</label>
-                        <input type="text" name="classname" class="form-control" id="classname" placeholder="分类名称"
+                        <label for="category_name">分类名称</label>
+                        <input type="text" name="category_name" class="form-control" id="category_name"
+                               placeholder="分类名称"
                                required="请输入分类名称">
-                        <input name="classid" id="classid" type="hidden" value=""/>
+                        <input name="category_id" id="category_id" type="hidden" value=""/>
                         <div id="error_show" style="color:#f00"></div>
                     </div>
                     <div class="form-group" id="classtype_div">
                         <label for="classtype">所属类型</label>
-                        <select name="classtype" id="classtype" class="form-control">
+                        <select name="type" id="type" class="form-control">
                             <option value="2">支出</option>
                             <option value="1">收入</option>
                         </select>
                     </div>
                     <div class="form-group" id="newclassname_div" style="display:none;">
-                        <label for="newclassid">目标分类</label>
-                        <select name="newclassid" id="newclassid" class="form-control">
+                        <label for="new_category_id">目标分类</label>
+                        <select name="new_category_id" id="new_category_id" class="form-control">
                             <option value='0'>请选择目标分类</option>
                         </select>
                     </div>
@@ -74,50 +79,29 @@ show_tab(3);
         $('#myModal').modal({backdrop: 'static', keyboard: false});
     });
     $("#btn_submit").click(function () {
-        var action = $(this).attr("date-info");
-        saveclassify(action);
+        let action = $(this).attr("date-info");
+        let uid =<?php echo $userid;?>;
+        let params = FormatForm(uid, "#addform");
+        Request_Data(GetUrl('Category', action), params, ResponseSuccess, ResponseFail);
     });
 
-    function saveclassify(action) {
-        posturl = "date.php?action=" + action + "classify";
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: posturl,
-            data: $('#addform').serialize(),
-            success: function (result) {
-                $("#error_show").show();
-                var data = '';
-                if (result != '') {
-                    data = eval("(" + result + ")");
-                }
-                $('#error_show').html(data.error_msg);
-                if (data.url != "") {
-                    location.href = data.url;
-                }
-            },
-            error: function () {
-                $("#error_show").hide();
-                console.log(result);
-            }
-        });
+    function deleteRecord(category_id) {
+        let uid =<?php echo $userid;?>;
+        let params = FormatDeleteData(uid, 'category_id', category_id);
+        Request_Data(GetUrl('Category', 'delete'), params, ResponseSuccess, ResponseFail);
     }
 
     // 编辑分类
     function edit(t) {
         chushihua();
-        var info = $(t).data('info');
-        var classname = info.classname;
-        var classid = info.classid;
-        var classtype = info.classtype;
-        $("#myModalLabel").text("编辑分类");
         $("#myModal").modal({backdrop: 'static', keyboard: true});
-        $("#classname").val(classname);
-        $("#classid").val(classid);
-        $("#classtype_div").hide();
-        //$("#classtype").find("option").attr("selected",false);
-        //$("#classtype").find("option[value="+classtype+"]").attr("selected",true);
-        $('#btn_submit').attr('date-info', 'modify');
+        $("#myModalLabel").text("编辑分类");
+        $('#btn_submit').attr('date-info', 'update');
+        let json_data = $(t).data('info');
+        $.each(json_data, function (key, value) {
+            let ele_name = "#" + key;
+            $(ele_name).val(value);
+        });
     }
 
     // 转移分类

@@ -1,5 +1,5 @@
 <?php
-include_once("header.php");
+include_once __DIR__ . '/header.php';
 ?>
     <table align="center" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
            class='table table-striped table-bordered'>
@@ -10,15 +10,16 @@ include_once("header.php");
             <td bgcolor="#FFFFFF">
                 <div class="record_form" id="user">
                     <form id="user_form" name="user_form" method="post" onsubmit="return checkpost('user',this);">
-                        <p><i>用 户 名：</i><?php echo $userinfo['username']; ?></p>
-                        <p><i>注册时间：</i><?php echo date("Y-m-d H:i:s", $userinfo['regtime']); ?></label></p>
-                        <p><i>更新时间：</i><?php echo date("Y-m-d H:i:s", $userinfo['updatetime']); ?></label></p>
-                        <p><i>电子邮箱：</i><input type="text" class="w180" name="email" id="email"
-                                              value="<?php echo $userinfo['useremail']; ?>"></p>
+                        <p><i>用 户 名：</i><input type="text" class="w180" name="username" id="username"
+                                               value="<?php echo $userinfo['username']; ?>"></p>
+                        <p><i>邮 箱：</i><input type="text" class="w180" name="email" id="email"
+                                             value="<?php echo $userinfo['email']; ?>"></p>
                         <p><i>旧 密 码：</i><input type="password" class="w180" name="password" id="password"/><span
                                     class="red fs12">修改必须填写</span></p>
                         <p><i>新 密 码：</i><input type="password" class="w180" name="newpassword" id="newpassword"/><span
                                     class="red fs12">密码请填写6-20位</span></p>
+                        <p><i>注册时间：</i><?php echo date("Y-m-d H:i:s", $userinfo['add_time']); ?></label></p>
+                        <p><i>更新时间：</i><?php echo date("Y-m-d H:i:s", $userinfo['update_time']); ?></label></p>
                         <p class="btn_div">
                             <button name="submit" type="submit" id="submit_user" class="btn btn-primary">更新信息</button>
                             <span id="user_error_show" class="red"></span>
@@ -45,7 +46,8 @@ include_once("header.php");
                             "SiteURL" => "站点网址",
                             "Multiuser" => "多用户",
                             "DB_NAME" => "数据库名称",
-                            "TABLE" => "数据库前缀"
+                            "TABLE" => "数据库前缀",
+                            "VERSION" => "版本"
                         ];
                         $info = vita_get_url_content("data/config.php");
                         preg_match_all("/define\(\"(.*?)\",\"(.*?)\"\)/", $info, $arr);
@@ -81,7 +83,7 @@ include_once("header.php");
         </tr>
     </table>
 
-<!--    <table align="center" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
+    <!--    <table align="center" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
            class='table table-striped table-bordered'>
         <tr>
             <td bgcolor="#EBEBEB">SMTP设置</td>
@@ -91,36 +93,36 @@ include_once("header.php");
                 <div class="record_form" id="smtp">
                     <form id="smtp_form" name="smtp_form" method="post" onsubmit="return checkpost('smtp',this);">
                         <?php
-/*                        $keyinfo_smtp = [
-                            "c_protocol" => "是否SSL",
-                            "c_serverport" => "端口",
-                            "c_smtp" => "SMTP",
-                            "c_email" => "邮箱",
-                            "c_emailpass" => "密码"
-                        ];
-                        $info = vita_get_url_content("inc/smtp_config.php");
-                        preg_match_all("/define\(\"(.*?)\",\"(.*?)\"\)/", $info, $arr);
-                        foreach ($arr[1] as $k => $v) {
-                            if ($v == 'c_protocol') {
-                                */?>
-                                <p><i><?php /*echo $keyinfo_smtp[$v]; */?>：</i><label class="red"><input name="c_protocol"
+    /*                        $keyinfo_smtp = [
+                                "c_protocol" => "是否SSL",
+                                "c_serverport" => "端口",
+                                "c_smtp" => "SMTP",
+                                "c_email" => "邮箱",
+                                "c_emailpass" => "密码"
+                            ];
+                            $info = vita_get_url_content("inc/smtp_config.php");
+                            preg_match_all("/define\(\"(.*?)\",\"(.*?)\"\)/", $info, $arr);
+                            foreach ($arr[1] as $k => $v) {
+                                if ($v == 'c_protocol') {
+                                    */ ?>
+                                <p><i><?php /*echo $keyinfo_smtp[$v]; */ ?>：</i><label class="red"><input name="c_protocol"
                                                                                                      type="radio"
                                                                                                      value="1" <?php /*if ($arr[2][$k] == '1') {
                                             echo "checked";
-                                        } */?> />使用SSL</label><label class="ml10"><input name="c_protocol" type="radio"
+                                        } */ ?> />使用SSL</label><label class="ml10"><input name="c_protocol" type="radio"
                                                                                        value="0" <?php /*if ($arr[2][$k] == '0') {
                                             echo "checked";
-                                        } */?> />默认</label></p>
+                                        } */ ?> />默认</label></p>
                                 <?php
-/*                            } else {
-                                */?>
-                                <p><i><?php /*echo $keyinfo_smtp[$v]; */?>：</i><input type="text" class="w180"
-                                                                                  name="<?php /*echo $v; */?>"
-                                                                                  id="<?php /*echo $v; */?>"
-                                                                                  value="<?php /*echo $arr[2][$k]; */?>">
+    /*                            } else {
+                                    */ ?>
+                                <p><i><?php /*echo $keyinfo_smtp[$v]; */ ?>：</i><input type="text" class="w180"
+                                                                                  name="<?php /*echo $v; */ ?>"
+                                                                                  id="<?php /*echo $v; */ ?>"
+                                                                                  value="<?php /*echo $arr[2][$k]; */ ?>">
                                 </p>
                             <?php /*}
-                        } */?>
+                        } */ ?>
                         <p class="btn_div">
                             <button name="submit" type="submit" id="submit_smtp" class="btn btn-primary">更新信息</button>
                             <span id="smtp_error_show" class="red"></span>
@@ -147,7 +149,8 @@ include_once("header.php");
             <th align="left" bgcolor="#EBEBEB">操作</th>
         </tr>
         <?php
-        $userlist = $conn->db_list("user", "where uid>0", "order by uid asc");
+        $user = new User();
+        $userlist = $user->get_users($userid);
         foreach ($userlist as $myrow) {
             if ($myrow['Isallow'] == "0") {
                 $res = "<span class='green'>正常</span>";
@@ -163,7 +166,7 @@ include_once("header.php");
             <tr>
                 <td align='left' bgcolor='#FFFFFF'><?php echo $myrow['username']; ?></td>
                 <td align='left' bgcolor='#FFFFFF'><?php echo $myrow['email']; ?></td>
-                <td align='left' bgcolor='#FFFFFF'><?php echo date("Y-m-d", $myrow['addtime']); ?></td>
+                <td align='left' bgcolor='#FFFFFF'><?php echo date("Y-m-d", $myrow['add_time']); ?></td>
                 <td align='left' bgcolor='#FFFFFF'><?php echo $res; ?></td>
                 <td align='left' bgcolor='#FFFFFF'><?php echo $btn_show; ?></td>
             </tr>
@@ -174,6 +177,11 @@ include_once("header.php");
     <script language="javascript">
         function checkpost(type, form) {
             if (type == "user") {
+                if (form.username.value == "") {
+                    alert("用户名不能为空！");
+                    form.password.focus();
+                    return false;
+                }
                 if (form.password.value == "") {
                     alert("密码不能为空！");
                     form.password.focus();
@@ -219,39 +227,20 @@ include_once("header.php");
                     return false;
                 }
             }
-            $(".btn_div > #submit_" + type).addClass("disabled");
+            //$(".btn_div > #submit_" + type).addClass("disabled");
             updateUserInfo(type);
             return false;
         }
 
         function updateUserInfo(type) {
-            var geturl = "date.php?action=update" + type;
-            var formname = "#" + type + "_form";
-            var error_id = "#" + type + "_error_show";
-            $.ajax({
-                type: "POST",
-                dataType: "json",
-                url: geturl,
-                data: $(formname).serialize(),
-                success: function (result) {
-                    $(error_id).show();
-                    var data = '';
-                    if (result != '') {
-                        data = eval("(" + result + ")");
-                    }
-                    if (data.code == "0") {
-                        $(".btn_div > #submit_" + type).removeClass("disabled");
-                    }
-                    $(error_id).html(data.error_msg);
-                    if (data.url != "") {
-                        location.href = data.url;
-                    }
-                },
-                error: function () {
-                    $(error_id).hide();
-                    console.log(result);
-                }
-            });
+            let uid =<?php echo $userid;?>;
+            let params = FormatForm(uid, "#" + type + "_form");
+            Request_Data(GetUrl('User', 'update'), params, UpdateSuccess, ResponseFail);
+        }
+
+        function UpdateSuccess()
+        {
+            window.location.reload();
         }
 
         function changeuser(type, uid) {
@@ -266,4 +255,4 @@ include_once("header.php");
             });
         }
     </script>
-<?php include_once("footer.php"); ?>
+<?php include_once __DIR__ . '/footer.php'; ?>

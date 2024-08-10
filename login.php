@@ -3,11 +3,12 @@ header("Content-Type: text/html;charset=utf-8");
 if (!is_file("./install/lock") && is_file("./install/index.php")) {
     @header("location:install/index.php");
 }
-include_once("data/config.php");
-include_once("inc/function.php");
+include_once __DIR__ . '/data/config.php';
+include_once __DIR__ . '/inc/function.php';
+include_once __DIR__ . '/inc/User.php';
 
 $getaction = get("action");//获取参数
-
+//echo "getaction:".$getaction;
 if ($getaction == "loginout") {
     unset($_SESSION['uid']);
     unset($_SESSION['email']);
@@ -34,13 +35,14 @@ if ($getaction == "register" and Multiuser == "1") { // 注册
     $showlogin_form = showlogin("email_session") . showlogin("newpassword");
     $first_input = "newpassword";
 } else {//默认
-    $form_name = "log_form";
+    $form_name = "login_form";
     $login_btn = "登录";
     $getaction = "login";
     $showlogin_form = showlogin("username") . showlogin("password");
     $first_input = "user_name";
 }
 ?>
+
 <html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -49,14 +51,16 @@ if ($getaction == "register" and Multiuser == "1") { // 注册
     <title><?php echo siteName; ?></title>
     <link rel="apple-touch-icon" sizes="180x180" href="<?php echo SiteURL; ?>img/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="<?php echo SiteURL; ?>img/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="<?php echo SiteURL; ?>img/favicon-16x16.png">
+    <script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="./js/load.js" defer></script>
     <link rel="stylesheet" href="css/login.css"/>
 </head>
 
 <body>
 <div class='login login-itlu-ui'>
     <div id="login">
-        <h1><a href="https://itlu.org/" title="基于PHP多用户记账系统" tabindex="-1">基于PHP多用户记账系统</a></h1>
+        <h1><a href="" title="基于PHP多用户记账系统" tabindex="-1">基于PHP多用户记账系统</a></h1>
         <p class="message" style="display:none;">请输入您的用户名或电子邮箱地址。您会收到一封包含创建新密码链接的电子邮件。</p>
         <div id="login_error" style="display:none;"></div>
         <form method="post" name="<?php echo $form_name; ?>" id="<?php echo $form_name; ?>">
@@ -66,17 +70,8 @@ if ($getaction == "register" and Multiuser == "1") { // 注册
                        value="<?php echo $login_btn; ?>"/>
             </p>
         </form>
-        <?php if ($getaction == "getpassword" or $getaction == "register") { ?>
-            <p id="nav"><a href="login.php">登录</a></p>
-        <?php } else { ?>
-            <p id="nav"><a href="?action=getpassword">忘记密码？</a><?php if (Multiuser == "1") { ?> | <a
-                        href="?action=register">注册账号</a><?php } ?></p>
-        <?php } ?>
     </div>
-
 </div>
-<script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
-<script type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script>
     try {
         document.getElementById('<?php echo $first_input;?>').focus();
@@ -91,50 +86,34 @@ if ($getaction == "register" and Multiuser == "1") { // 注册
     }
 
     $("#itlu-submit").click(function () {
-        login_check('#<?php echo $form_name;?>', '<?php echo $getaction;?>');
+        let is_login = login_check('#<?php echo $form_name;?>', '<?php echo $getaction;?>');
+        if (is_login) {
+            let form_name = document.getElementById('<?php echo $form_name;?>');
+            let params = FormatForm(0, form_name);
+            Request_Data(GetUrl('User','login'), params, SuccessCallback, FailCallback)
+        }
     });
 
-    // 提交数据
-    function submitdate(formname, type) {
-        posturl = "login_chk.php?action=" + type;
-        $.ajax({
-            type: "POST",
-            dataType: "json",
-            url: posturl,//url
-            data: $(formname).serialize(),
-            success: function (result) {
-                $("#login_error").show();
-                tipsword = "错误";
-                var data = '';
-                if (result != '') {
-                    data = eval("(" + result + ")");    //将返回的json数据进行解析，并赋给data
-                }
-                if (data.code == "1") {
-                    tipsword = "成功";
-                }
-                $('#login_error').html("<strong>" + tipsword + "</strong>：" + data.error_msg);    //在#text中输出
-                if (data.url != "") {
-                    location.href = data.url;
-                }
-            },
-            error: function (result) {
-                $("#login_error").hide();
-                console.log(result);
-            }
-        });
+    function SuccessCallback(data) {
+        location.href = "add.php";
+    }
+
+    function FailCallback(msg) {
+        $("#login_error").show();
+        $('#login_error').html("<strong>" + msg + "</strong>");
     }
 
     //登录检查
     function login_check(formname, type) {
         if (type == "login") {
-            if (($("#user_name").val() == "") || ($("#user_pass").val() == "")) {
+            if (($("#username").val() == "") || ($("#password").val() == "")) {
                 alert("用户名、密码不能为空啊！");
-                $("#user_name").focus();
+                $("#username").focus();
                 return false;
             }
-            if ($("#user_pass").val().length < 6) {
+            if ($("#password").val().length < 6) {
                 alert("密码至少要6位数！");
-                $("#user_pass").focus();
+                $("#password").focus();
                 return false;
             }
         }
@@ -157,9 +136,9 @@ if ($getaction == "register" and Multiuser == "1") { // 注册
                 return false;
             }
         }
-        submitdate(formname, type);
-        return false;
+        return true;
     }
+
 </script>
 </body>
 </html>

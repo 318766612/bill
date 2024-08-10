@@ -1,4 +1,4 @@
-<?php include_once("header.php"); ?>
+<?php include_once __DIR__ . '/header.php'; ?>
     <table align="left" width="100%" border="0" cellpadding="5" cellspacing="1" bgcolor='#B3B3B3'
            class='table table-striped table-bordered'>
         <tr>
@@ -13,7 +13,7 @@
                     </div>
                 </div>
                 <hr/>
-                <form id="import_form" class="block" action="date.php?action=import" method="post"
+                <form id="import_form" class="block" action="old/date.php?action=import" method="post"
                       enctype="multipart/form-data" onsubmit="return checkpost();">
                     <div class="import_tips">
                         <strong class="red">批量导入数据</strong><br/>
@@ -58,4 +58,4 @@
             }
         }
     </script>
-<?php include_once("footer.php"); ?>
+<?php include_once __DIR__.'/footer.php'; ?>

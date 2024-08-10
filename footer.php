@@ -1,4 +1,4 @@
-<div class="footer">Copyright &copy; <?php echo siteName; ?> <?php echo $version; ?></div>
+<div class="footer">Copyright &copy; <?php echo siteName; ?> <?php echo VERSION; ?></div>
 
 </div>
 </div>
@@ -9,6 +9,6 @@
 </html>
 <?php
 //$conn->close();
-clearstatcache();
-ob_end_flush();
+//clearstatcache();
+//ob_end_flush();
 ?>

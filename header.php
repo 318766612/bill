@@ -1,7 +1,11 @@
 <?php
 header("Content-Type: text/html;charset=utf-8");
-include_once("data/config.php");
-include_once("inc/function.php");
+include_once __DIR__ . '/data/config.php';
+include_once __DIR__ . '/inc/function.php';
+include_once __DIR__ . '/inc/User.php';
+include_once __DIR__ . '/inc/Bank.php';
+include_once __DIR__ . '/inc/Category.php';
+include_once __DIR__ . '/inc/Account.php';
 // 登录状态判断
 loginchk($userid);
 ?>
@@ -15,10 +19,12 @@ loginchk($userid);
     <link rel="icon" type="image/png" sizes="32x32" href="<?php echo SiteURL; ?>img/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="<?php echo SiteURL; ?>img/favicon-16x16.png">
     <link rel="stylesheet" href="css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="css/itlu.style.css?<?php echo $version; ?>"/>
-    <script type="text/javascript" src="js/jquery-1.8.3.min.js"></script>
-    <script type="text/javascript" src="js/all.js?<?php echo $version; ?>"></script>
+    <link rel="stylesheet" href="css/itlu.style.css?<?php echo VERSION; ?>"/>
+    <script type="text/javascript" src="js/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+<!--    <script type="text/javascript" src="js/all.js?--><?php //echo VERSION; ?><!--"></script>-->
     <script type="text/javascript" src="js/echarts.min.js"></script>
+    <script type="text/javascript" src="js/load.js"></script>
 </head>
 
 <body>
@@ -39,8 +45,8 @@ loginchk($userid);
                 <div class="collapse navbar-collapse" id="example-navbar-collapse">
                     <ul class="nav navbar-nav">
                         <li><a href="show.php" <?php show_menu_cur("show.php"); ?>>查询修改</a></li>
-                        <li><a href="stat.php" <?php show_menu_cur("stat.php"); ?>>近期统计</a></li>
-                        <li><a href="annual_stat.php" <?php show_menu_cur("annual_stat.php"); ?>>全年统计</a></li>
+                        <li><a href="stat.php" <?php show_menu_cur("stat.php"); ?>>账户分析</a></li>
+                        <li><a href="annual_stat.php" <?php show_menu_cur("annual_stat.php"); ?>>年度分析</a></li>
                         <li><a href="classify.php" <?php show_menu_cur("classify.php"); ?>>分类管理</a></li>
                         <li><a href="bank.php" <?php show_menu_cur("bank.php"); ?>>账户管理</a></li>
                         <!--<li><a href="int_out.php" <?php show_menu_cur("int_out.php"); ?>导入导出</a></li>-->

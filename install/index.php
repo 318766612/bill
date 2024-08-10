@@ -7,14 +7,15 @@ if (function_exists('date_default_timezone_set')) {
 }
 input($_GET);
 input($_POST);
-function input(&$data)
+function input(&$data): void
 {
     foreach ((array)$data as $key => $value) {
         if (is_string($value)) {
-            if (!get_magic_quotes_gpc()) {
-                $value = htmlentities($value, ENT_NOQUOTES);
-                $value = addslashes(trim($value));
-            }
+            /*            if (!get_magic_quotes_gpc())
+                        {
+                            $value = htmlentities($value, ENT_NOQUOTES);
+                            $value = addslashes(trim($value));
+                        }*/
         } else {
             $data[$key] = input($value);
         }
@@ -48,7 +49,9 @@ $html_footer = <<<EOF
 </div>
 EOF;
 require('./include/function.php');
-if (!in_array($_GET['step'], array(1, 2, 3, 4, 5))) {
+require('./data/config.php');
+
+if (!in_array(isset($_GET['step']), array(1, 2, 3, 4, 5))) {
     $_GET['step'] = 0;
 }
 switch ($_GET['step']) {
@@ -82,7 +85,7 @@ include("step_{$_GET['step']}.php");
 function step3(&$install_error, &$install_recover)
 {
     global $html_title, $html_header, $html_footer;
-    if ($_POST['submitform'] != 'submit') return;
+    if (isset($_POST['submitform']) != 'submit') return;
     $db_name = $_POST['db_name'];
     $sitename = $_POST['site_name'];
     $admin = $_POST['admin'];
@@ -94,7 +97,7 @@ function step3(&$install_error, &$install_recover)
     if (strlen($admin) > 15 || preg_match("/^$|^c:\\con\\con$|　|[,\"\s\t\<\>&]|^游客|^Guest/is", $admin)) {
         $install_error .= '非法用户名，用户名长度不应当超过 15 个英文字符，且不能包含特殊字符，一般是中文，字母或者数字';
     }
-    if ($install_error != '') reutrn;
+    if ($install_error != '') return;
 
     require('step_4.php');
     $sitepath = strtolower(substr($_SERVER['PHP_SELF'], 0, strrpos($_SERVER['PHP_SELF'], '/')));
@@ -128,12 +131,15 @@ function step3(&$install_error, &$install_recover)
     $user_pass = hash_md5($password, $salt);
 
     //管理员账号密码
-    $user_sql = "INSERT INTO jz_user (`uid`,`username`,`password`,`email`,`Isadmin`,`addtime`,`utime`,`salt`) VALUES ('1','$username','$user_pass','$email','1','$addtime','$addtime','$salt')";
+    $user_sql = "INSERT INTO " . TABLE . "user (`uid`,`username`,`password`,`email`,`Isadmin`,`add_time`,`update_time`,`salt`) VALUES ('1','$username','$user_pass','$email','1','$addtime','$addtime','$salt')";
     $ret = $sqlite->query($user_sql);
+    //创建默认分类
+    $class_sql = "INSERT INTO " . TABLE . "category (`category_id`, `category_name`, `type`, `uid`) VALUES (1, '默认收入', 1, 1),(2, '默认支出', 2, 1)";
+    $ret = $sqlite->query($class_sql);
 
     //创建默认分类
-    $class_sql = "INSERT INTO jz_account_class (`classid`, `classname`, `classtype`, `ufid`) VALUES (1, '默认收入', 1, 1),(2, '默认支出', 2, 1)";
-    $ret = $sqlite->query($class_sql);
+    $bank_sql = "INSERT INTO " . TABLE . "bank (`bank_id`, `bank_name`, `account`, `balance_money`,`add_time`,`update_time`,`uid`) VALUES ('1', '默认账户', '1', '0','$addtime','$addtime','1')";
+    $ret = $sqlite->query($bank_sql);
 
     //新增一个标识文件，用来屏蔽重新安装
     $fp = @fopen('lock', 'wb+');
@@ -160,7 +166,7 @@ function runquery($sql, $sqlite)
     foreach ($ret as $query) {
         $query = trim($query);
         if ($query) {
-            if (substr($query, 0, 12) == 'CREATE TABLE') {
+            if (str_starts_with($query, 'CREATE TABLE')) {
                 $line = explode('`', $query);
                 $data_name = $line[1];
                 showjsmessage('数据表  ' . $data_name . ' ... 创建成功');

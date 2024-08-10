@@ -1,15 +1,21 @@
 <?php
-if (!defined("DB_NAME")) {
-    die('非法访问！');
+include_once __DIR__ . '/safe.php';
+include_once __DIR__ . '/aes7.php';
+//使用系统统一的$userid
+$userid = "";
+if (isset($_SESSION['uid'])) {
+    $userid = $_SESSION['uid'];
 }
 
-$version = 'V2.5.0(24.05.05)';
+//setcookie("userinfo", "", time()-86400*3);
+$userinfo = "";
+if (isset($_COOKIE["userinfo"])) {
+    $userinfo = AES::decrypt($_COOKIE["userinfo"], sys_key);
+}
 
-include_once("sqlite3.class.php");
-$conn = new SQLite3_Manage('./data/' . DB_NAME);
-
-if (!$conn) {
-    die('数据库打开失败！');
+if (!isset($_COOKIE["userinfo"]) && $userid > 0) {
+    $_SESSION['uid'] = "";
+    gotourl(SiteURL . "login.php");
 }
 
 $today = date("Y-m-d");
@@ -23,17 +29,15 @@ $last_month_start = date("Y-m-d", mktime(0, 0, 0, date("m") - 1, 1, date("Y")));
 $last_month_end = date("Y-m-d", mktime(23, 59, 59, date("m"), 0, date("Y")));
 $last_year_start = date("Y-m-d", strtotime("-1 year"));
 $last_year_end = date("Y-12-31", strtotime("-1 year"));
-function get_week_day($type = 1)
+function get_week_day($type = 1): string
 {
     $date = new DateTime();
     if ($type == 1) {
         $date->modify('this week');
-        $get_week_day = $date->format('Y-m-d');
     } else {
         $date->modify('this week +6 days');
-        $get_week_day = $date->format('Y-m-d');
     }
-    return $get_week_day;
+    return $date->format('Y-m-d');
 }
 
 function get($kw, $default = "")
@@ -66,32 +70,23 @@ function post_pass($kw, $default = "")
     return $post;
 }
 
-function hash_md5($password, $salt)
+function hash_md5($password, $salt): string
 {
     $password = md5($password) . $salt;
-    $password = md5($password);
-    return $password;
+    return md5($password);
 }
 
-function price_format($price)
+function price_format($price): string
 {
-    $price = sprintf("%.2f", $price);
-    return $price;
+    return sprintf("%.2f", $price);
 }
 
-function table($dbname)
+function table($dbname): string
 {
-    $dbname = TABLE . $dbname;
-    return $dbname;
+    return TABLE . $dbname;
 }
 
-//使用系统统一的$userid
-if (isset($_SESSION['uid'])) {
-    $userid = $_SESSION['uid'];
-} else {
-    $userid = "";
-}
-function loginchk($uid)
+function loginchk($uid): void
 {
     if ($uid == "" || empty($uid) || $uid == null) {
         msgbox("", "您无权限访问该页,正在跳转登入页面...", "login.php");
@@ -133,13 +128,13 @@ function showlogin($tid)
 {
     switch ($tid) {
         case "username":
-            $showlogin = "<label for=\"user_name\">用户名<br><input type=\"text\" name=\"user_name\" id=\"user_name\" class=\"input\" value='' size=\"20\"></label>";
+            $showlogin = "<label for=\"username\">用户名<br><input type=\"text\" name=\"username\" id=\"username\" class=\"input\" value='' size=\"20\"></label>";
             break;
         case "email":
-            $showlogin = "<label for=\"user_email\">邮箱<br><input type=\"text\" name=\"user_email\" id=\"user_email\" class=\"input\" value='' size=\"20\"></label>";
+            $showlogin = "<label for=\"email\">邮箱<br><input type=\"text\" name=\"email\" id=\"email\" class=\"input\" value='' size=\"20\"></label>";
             break;
         case "password":
-            $showlogin = "<label for=\"user_pass\">密码<br><input type=\"password\" name=\"user_pass\" id=\"user_pass\" class=\"input\" value='' size=\"20\"></label>";
+            $showlogin = "<label for=\"password\">密码<br><input type=\"password\" name=\"password\" id=\"password\" class=\"input\" value='' size=\"20\"></label>";
             break;
         case "email_session":
             $showlogin = "<label for=\"user_email\">邮箱<br><input type=\"text\" name=\"user_email\" id=\"user_email\" class=\"input form-control\" value='" . $_SESSION['email'] . "' readonly size=\"20\"></label>";
@@ -367,17 +362,6 @@ function yearIncome($year)
 {
     $result = $conn->getYearIncome();
     echo $result;
-
 }
 
-include_once("safe.php");
-include_once("aes7.php");
-//setcookie("userinfo", "", time()-86400*3);
-if (!empty($_COOKIE["userinfo"])) {
-    $userinfo = AES::decrypt($_COOKIE["userinfo"], $sys_key);
-}
-if (empty($_COOKIE["userinfo"]) && $userid > 0) {
-    $_SESSION['uid'] = "";
-    gotourl(SiteURL . "login.php");
-}
 ?>

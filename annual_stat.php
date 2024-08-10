@@ -1,6 +1,5 @@
 <?php
-include("header.php");
-include_once("inc/function.php");
+include_once __DIR__ . '/header.php';
 $first_year = get("year", 2019);
 $get_year = get("year", $this_year);
 ?>
@@ -45,76 +44,43 @@ $get_year = get("year", $this_year);
             </td>
         </tr>
     </table>
-    <script type="text/javascript">
+    <script type="text/javascript" defer>
         $("#year").change(function () {
-            var select_year = $(this).val();
+            let select_year = $(this).val();
             document.cookie = "selectYear=" + select_year;
             location.reload();
         });
 
         $(document).ready(function () {
-            showMeth();
-            payMeth();
-            incomeMeth();
+            // 当整个文档加载完成后执行这个函数
+            let uid =<?php echo $userid;?>;
+            let params = FormatDeleteData(uid, 'year', $("#year").val());
+            Request_Data(GetUrl('Account','count_year'), params, GetCount, GetError); // 调用加载数据的函数
         });
 
-        function showMeth() {
-            var incomeObj =<?php
-                $result = $conn->getYearShow($get_year);
-                echo $result;
-                ?>;
-            var incomeLegend = {data: [], right: 10};
-            var incomeSeries = [];
-            for (var key in incomeObj) {
-                var keyTemp = "支出";
-                if (key === '1')
-                    keyTemp = "收入";
-                var temp = {name: keyTemp, type: 'line', data: incomeObj[key]};
-                incomeSeries.push(temp);
-                incomeLegend.data.push(keyTemp);
-            }
-            var myChart = echarts.init(document.getElementById('itlu_main_show'));
-            var option = {
-                title: {text: '收支统计'},
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    }
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis:
-                    [{
-                        type: 'category',
-                        data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-                    }],
-                yAxis: [{type: 'value'}],
-                legend: incomeLegend,
-                series: incomeSeries
-            };
-            myChart.setOption(option);
-        };
+        function GetCount(data) {
+            let allChart = echarts.init(document.getElementById('itlu_main_show'));
+            let payChart = echarts.init(document.getElementById('itlu_type_pay'));
+            let incomeChart = echarts.init(document.getElementById('itlu_type_income'));
+            SetChart(allChart, data.year, '收支统计');
+            SetChart(payChart, data.pay, '支出统计');
+            SetChart(incomeChart, data.income, '收入统计');
+        }
 
-        function payMeth() {
-            var incomeObj =<?php
-                $result = $conn->getYearAccount($get_year, 2);
-                echo $result;
-                ?>;
-            var incomeLegend = {data: [], right: 10};
-            var incomeSeries = [];
-            for (var key in incomeObj) {
-                var temp = {name: key, type: 'line', data: incomeObj[key]};
+        function GetError() {
+            console.log('加载失败');
+        }
+
+        function SetChart(chart, data, title) {
+            let incomeLegend = {data: [], right: 10};
+            let incomeSeries = [];
+            for (let key in data) {
+                let temp = {name: key, type: 'line', data: data[key]};
                 incomeSeries.push(temp);
                 incomeLegend.data.push(key);
             }
-            var myChart = echarts.init(document.getElementById('itlu_type_pay'));
-            var option = {
-                title: {text: '支出统计'},
+            let option = {
+                title: {text: title},
                 tooltip: {
                     trigger: 'axis',
                     axisPointer: {
@@ -136,47 +102,9 @@ $get_year = get("year", $this_year);
                 legend: incomeLegend,
                 series: incomeSeries
             };
-            myChart.setOption(option);
+            chart.setOption(option);
         };
 
-        function incomeMeth() {
-            var incomeObj =<?php
-                $result = $conn->getYearAccount($get_year, 1);
-                echo $result;
-                ?>;
-            var incomeLegend = {data: [], right: 10};
-            var incomeSeries = [];
-            for (var key in incomeObj) {
-                var temp = {name: key, type: 'line', data: incomeObj[key]};
-                incomeSeries.push(temp);
-                incomeLegend.data.push(key);
-            }
-            var myChart = echarts.init(document.getElementById('itlu_type_income'));
-            var option = {
-                title: {text: '收入统计'},
-                tooltip: {
-                    trigger: 'axis',
-                    axisPointer: {
-                        type: 'shadow'
-                    }
-                },
-                grid: {
-                    left: '3%',
-                    right: '4%',
-                    bottom: '3%',
-                    containLabel: true
-                },
-                xAxis:
-                    [{
-                        type: 'category',
-                        data: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
-                    }],
-                yAxis: [{type: 'value'}],
-                legend: incomeLegend,
-                series: incomeSeries
-                //series: [{name: '默认分类', type: 'bar', data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}]
-            };
-            myChart.setOption(option);
-        };
+
     </script>
-<?php include("footer.php"); ?>
+<?php include_once __DIR__ . '/footer.php'; ?>

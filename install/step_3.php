@@ -82,7 +82,7 @@
                     <label>数据库名</label>
                     <span>
           <input type="text" name="db_name" maxlength="60"
-                 value="<?php echo $_POST['db_name'] ? $_POST['db_name'] : 'jizhang.db'; ?>">
+                 value="<?php echo isset($_POST['db_name']) ? isset($_POST['db_name']) : 'jizhang.db'; ?>">
           </span> <em></em></div>
                 <?php if ($install_error != '') { ?>
                     <div>
@@ -95,27 +95,27 @@
                 <div>
                     <label>站点名称</label>
                     <span>
-          <input name="site_name" value="<?php echo $_POST['site_name']; ?>" maxlength="100" type="text">
+          <input name="site_name" value="<?php echo isset($_POST['site_name']); ?>" maxlength="100" type="text">
           </span> <em>输入站点名称，安装后可在平台设置中进行修改</em></div>
                 <div>
                     <label>管理员账号</label>
                     <span>
-          <input name="admin" value="<?php echo $_POST['admin']; ?>" maxlength="60" type="text">
+          <input name="admin" value="<?php echo isset($_POST['admin']); ?>" maxlength="60" type="text">
           </span> <em></em></div>
                 <div>
                     <label>管理员邮箱</label>
                     <span>
-          <input name="email" value="<?php echo $_POST['email']; ?>" maxlength="60" type="text">
+          <input name="email" value="<?php echo isset($_POST['email']); ?>" maxlength="60" type="text">
           </span> <em></em></div>
                 <div>
                     <label>管理员密码</label>
                     <span>
-          <input name="password" id="password" maxlength="20" value="<?php echo $_POST['password']; ?>" type="password">
+          <input name="password" id="password" maxlength="20" value="<?php echo isset($_POST['password']); ?>" type="password">
           </span> <em>管理员密码不少于6个字符</em></div>
                 <div>
                     <label>重复密码</label>
                     <span>
-          <input name="rpassword" value="<?php echo $_POST['rpassword']; ?>" maxlength="20" type="password">
+          <input name="rpassword" value="<?php echo isset($_POST['rpassword']); ?>" maxlength="20" type="password">
           </span> <em>确保两次输入的密码一致</em></div>
             </fieldset>
         </div>
