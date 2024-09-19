@@ -143,7 +143,7 @@ class Account
         $data_json = json_decode($data, true);
         $uid = $data_json['uid'];
         $year = $data_json['year'];
-        $sql = "SELECT jz_category.category_name,money,time,jz_account.category_id FROM jz_account LEFT JOIN jz_category ON jz_account.category_id = jz_category.category_id WHERE jz_account.uid = '" . $uid . "';";
+        $sql = "SELECT jz_category.category_name,money,time,jz_account.type,jz_account.category_id FROM jz_account LEFT JOIN jz_category ON jz_account.category_id = jz_category.category_id WHERE jz_account.uid = '" . $uid . "';";
         $result = $this->sql_mgr->query($sql);
         $array = array();
         $res_year = array();
@@ -157,7 +157,7 @@ class Account
             if ($row_year === $year) {
                 $category_name = $row_data['category_name'];
                 //1 收入  2 支出
-                if ($row_data['category_id'] === 1) {
+                if ($row_data['type'] === 1) {
                     $res_year['收入'][$row_mouth - 1] += $row_data['money'];
                     if (!array_key_exists($category_name, $res_income))
                         $res_income[$category_name] = array(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
